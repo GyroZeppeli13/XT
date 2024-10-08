@@ -1,6 +1,10 @@
 package com.tianji.api.client.course;
 
 import com.tianji.api.dto.course.*;
+import com.tianji.api.vo.course.CourseTeacherVO;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,4 +69,14 @@ public interface CourseClient {
             @RequestParam(value = "withCatalogue", required = false) boolean withCatalogue,
             @RequestParam(value = "withTeachers", required = false) boolean withTeachers
     );
+
+    /**
+     * 查询课程相关的老师信息
+     * @param id 课程id
+     * @param see 是否是用于查看页面查看数据，默认是查看,如果不是界面查看数据就是编辑页面使用
+     * @return
+     */
+    @GetMapping("/courses/teachers/{id}")
+    public List<CourseTeacherVO> teacher(@PathVariable("id") Long id,
+                                         @RequestParam(value = "see", required = false, defaultValue = "1") Boolean see);
 }
