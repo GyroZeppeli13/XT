@@ -3,6 +3,7 @@ package com.tianji.learning.service.impl;
 import com.baomidou.mybatisplus.core.metadata.OrderItem;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.tianji.api.client.remark.RemarkClient;
 import com.tianji.api.client.user.UserClient;
 import com.tianji.api.dto.user.UserDTO;
 import com.tianji.common.domain.dto.PageDTO;
@@ -46,6 +47,8 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
     private final InteractionQuestionMapper questionMapper;
 
     private final UserClient userClient;
+
+    private final RemarkClient remarkClient;
 
     @Override
     @Transactional
@@ -154,6 +157,9 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
             targetReplyMap = list.stream()
                     .collect(Collectors.toMap(InteractionReply::getId, r -> r));
         }
+        //3.4页面展示点赞按钮时，如果点赞过会高亮显示。因此我们要在返回值中标记当前用户是否点赞过这条评论或回答。
+        List<Long> bizIds = records.stream().map(InteractionReply::getId).collect(Collectors.toList());
+        Set<Long> bizLiked = remarkClient.isBizLiked(bizIds);
 
         // 4.封装VO
         List<ReplyVO> voList = new ArrayList<>(records.size());
@@ -179,8 +185,11 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
                     vo.setTargetUserName(targerUserDto.getName());
                 }
             }
+            // 4.4当前用户是否点赞过这条评论或回答
+            if(bizLiked.contains(r.getId())) {
+                vo.setLiked(true);
+            }
         }
-        //TODO 5.页面展示点赞按钮时，如果点赞过会高亮显示。因此我们要在返回值中标记当前用户是否点赞过这条评论或回答。
 
         return PageDTO.of(page, voList);
     }
@@ -193,7 +202,7 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
         }
         // 2.分页查询
         Page<InteractionReply> page = lambdaQuery()
-                // TODO ? 如果为回答则AnswerId为0,如果不加限制条件会将问题下所有回答的所有回复也查出来
+                // 如果为回答则AnswerId为0,如果不加限制条件会将问题下所有回答的所有回复也查出来
                 .eq(InteractionReply::getAnswerId, query.getAnswerId() != null ? query.getAnswerId() : 0)
                 .eq(query.getQuestionId() != null, InteractionReply::getQuestionId, query.getQuestionId())
                 //.eq(InteractionReply::getHidden, false)
@@ -224,6 +233,9 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
             userMap = users.stream()
                     .collect(Collectors.toMap(UserDTO::getId, u -> u));
         }
+        //3.3页面展示点赞按钮时，如果点赞过会高亮显示。因此我们要在返回值中标记当前用户是否点赞过这条评论或回答。
+        List<Long> bizIds = records.stream().map(InteractionReply::getId).collect(Collectors.toList());
+        Set<Long> bizLiked = remarkClient.isBizLiked(bizIds);
 
         // 4.封装VO
         List<ReplyVO> voList = new ArrayList<>(records.size());
@@ -250,8 +262,11 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
                         .eq(InteractionReply::getAnswerId, r.getId()));
                 vo.setReplyTimes(replyTimes);
             }
+            // 4.5当前用户是否点赞过这条评论或回答
+            if(bizLiked.contains(r.getId())) {
+                vo.setLiked(true);
+            }
         }
-        //TODO 5.页面展示点赞按钮时，如果点赞过会高亮显示。因此我们要在返回值中标记当前用户是否点赞过这条评论或回答。
 
         return PageDTO.of(page, voList);
     }
