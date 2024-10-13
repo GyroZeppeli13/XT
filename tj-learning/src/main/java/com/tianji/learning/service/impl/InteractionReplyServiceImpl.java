@@ -6,6 +6,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tianji.api.client.remark.RemarkClient;
 import com.tianji.api.client.user.UserClient;
 import com.tianji.api.dto.user.UserDTO;
+import com.tianji.common.autoconfigure.mq.RabbitMqHelper;
+import com.tianji.common.constants.MqConstants;
 import com.tianji.common.domain.dto.PageDTO;
 import com.tianji.common.exceptions.BadRequestException;
 import com.tianji.common.utils.BeanUtils;
@@ -20,6 +22,7 @@ import com.tianji.learning.domain.vo.ReplyVO;
 import com.tianji.learning.enums.QuestionStatus;
 import com.tianji.learning.mapper.InteractionQuestionMapper;
 import com.tianji.learning.mapper.InteractionReplyMapper;
+import com.tianji.learning.mq.message.SignInMessage;
 import com.tianji.learning.service.IInteractionReplyService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -50,6 +53,8 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
 
     private final RemarkClient remarkClient;
 
+    private final RabbitMqHelper mqHelper;
+
     @Override
     @Transactional
     public void saveReplyOrComment(ReplyDTO replyDTO) {
@@ -77,6 +82,11 @@ public class InteractionReplyServiceImpl extends ServiceImpl<InteractionReplyMap
             question.setLatestAnswerId(interactionReply.getId());
             // 当前提交的是回复，则累加问题下回答次数
             question.setAnswerTimes(question.getAnswerTimes() + 1);
+            // 保存积分明细记录
+            mqHelper.send(
+                    MqConstants.Exchange.LEARNING_EXCHANGE,
+                    MqConstants.Key.WRITE_REPLY,
+                    userId);// 回答一个问题5分，每日上限20分
         }
         else {
             // 当前提交的是回复，则累加回答下评论次数
