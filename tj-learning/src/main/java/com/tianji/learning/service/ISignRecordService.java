@@ -7,5 +7,5 @@ import java.util.List;
 public interface ISignRecordService {
     SignResultVO addSignRecords();
 
-    List<Integer> getSignRecords();
+    Byte[] getSignRecords();
 }

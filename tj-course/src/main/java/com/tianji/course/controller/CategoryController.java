@@ -1,5 +1,6 @@
 package com.tianji.course.controller;
 
+import com.tianji.api.dto.course.CategoryBasicDTO;
 import com.tianji.course.domain.dto.CategoryAddDTO;
 import com.tianji.course.domain.dto.CategoryDisableOrEnableDTO;
 import com.tianji.course.domain.dto.CategoryListDTO;
@@ -18,7 +19,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 /**
  * 课程分类
@@ -93,4 +96,11 @@ public class CategoryController {
     public List<CategoryVO> allOfOneLevel() {
         return categoryService.allOfOneLevel();
     }
+
+    @GetMapping("getByIds")
+    @ApiOperation("获取在ids中的所有课程分类")
+    public List<CategoryBasicDTO> getByIds(Set<Long> ids) {
+        return categoryService.getByIds(ids);
+    }
+
 }

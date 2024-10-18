@@ -2,4 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.tianji.learning.mapper.PointsRecordMapper">
 
+    <insert id="createPointsRecordTable" parameterType="java.lang.String">
+        CREATE TABLE `${tableName}`
+        (
+            `id`      BIGINT NOT NULL AUTO_INCREMENT COMMENT '积分记录id',
+            `user_id` BIGINT NOT NULL COMMENT '学生id',
+            `type`  TINYINT NOT NULL COMMENT '积分类型',
+            `points`  TINYINT NOT NULL COMMENT '积分值',
+            `create_time` DATETIME NOT NULL COMMENT '创建时间',
+            PRIMARY KEY (`id`) USING BTREE,
+            INDEX `idx_user_id` (`user_id`) USING BTREE
+        )
+            COMMENT ='积分记录表'
+            COLLATE = 'utf8mb4_0900_ai_ci'
+            ENGINE = InnoDB
+            ROW_FORMAT = DYNAMIC
+    </insert>
 </mapper>

@@ -94,7 +94,7 @@ public class SignRecordServiceImpl implements ISignRecordService {
     }
 
     @Override
-    public List<Integer> getSignRecords() {
+    public Byte[] getSignRecords() {
         // 1.获取本月从第一天开始，到今天为止的所有签到记录
         // 1.1.获取登录用户
         Long userId = UserContext.getUser();
@@ -111,21 +111,18 @@ public class SignRecordServiceImpl implements ISignRecordService {
                 .bitField(key, BitFieldSubCommands.create().get(
                         BitFieldSubCommands.BitFieldType.unsigned(len)).valueAt(0));
         if (CollUtils.isEmpty(result)) {
-            return CollUtils.emptyList();
+            return new Byte[0];
         }
         int num = result.get(0).intValue();
         //2.构造返回的list
-        List<Integer> list = new ArrayList<>();
-        while(num != 0) {
-            list.add(num & 1);
-            num >>>= 1;
+        Byte[] bytes = new Byte[len];
+        while(len > 0) {
+            if(num != 0) {
+                bytes[--len] = (byte) (num & 1);
+                num >>>= 1;
+            }
+            else bytes[--len] = 0;
         }
-        //将前面的0补齐
-        for(int i = list.size();i < len;i++) {
-            list.add(0);
-        }
-        //反转list
-        Collections.reverse(list);
-        return list;
+        return bytes;
     }
 }

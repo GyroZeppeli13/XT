@@ -1,6 +1,7 @@
 package com.tianji.course.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.tianji.api.dto.course.CategoryBasicDTO;
 import com.tianji.course.domain.dto.CategoryAddDTO;
 import com.tianji.course.domain.dto.CategoryDisableOrEnableDTO;
 import com.tianji.course.domain.dto.CategoryListDTO;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * <p>
@@ -105,4 +107,6 @@ public interface ICategoryService extends IService<Category> {
      * @return 一二三级课程分类id列表
      */
     List<Long> checkCategory(Long thirdCateId);
+
+    List<CategoryBasicDTO> getByIds(Set<Long> ids);
 }

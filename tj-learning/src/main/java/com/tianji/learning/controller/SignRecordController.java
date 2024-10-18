@@ -28,7 +28,7 @@ public class SignRecordController {
 
     @GetMapping
     @ApiOperation("查询签到记录")
-    public List<Integer> getSignRecords() {
+    public Byte[] getSignRecords() {
         return recordService.getSignRecords();
     }
 }

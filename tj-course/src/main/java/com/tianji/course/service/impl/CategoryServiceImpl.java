@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.tianji.api.dto.course.CategoryBasicDTO;
 import com.tianji.common.constants.Constant;
 import com.tianji.common.constants.ErrorInfo;
 import com.tianji.common.enums.CommonStatus;
@@ -643,5 +644,13 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
                 simpleCategoryVOS.remove(count);
             }
         }
+    }
+
+    @Override
+    public List<CategoryBasicDTO> getByIds(Set<Long> ids) {
+        if(ids == null || CollUtils.isEmpty(ids)) {
+            return CollUtils.emptyList();
+        }
+        return getByIds(ids);
     }
 }
