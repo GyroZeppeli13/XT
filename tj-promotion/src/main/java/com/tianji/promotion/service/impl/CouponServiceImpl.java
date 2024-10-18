@@ -186,10 +186,11 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         List<CouponScope> list = scopeService.list(wrapper);
         // 远程查询分类信息
         Set<Long> collect = list.stream().map(CouponScope::getBizId).collect(Collectors.toSet());
-        List<CategoryBasicDTO> categoryBasicDTOS = categoryClient.getByIds(collect);
+//        List<CategoryBasicDTO> categoryBasicDTOS = categoryClient.getByIds(collect);
+        List<CategoryBasicDTO> allOfOneLevel = categoryClient.getAllOfOneLevel();
         // 封装分类信息
-        List<CouponScopeVO> couponScopeVOS = BeanUtils.copyList(categoryBasicDTOS, CouponScopeVO.class);
-        couponDetailVO.setScopes(couponScopeVOS);
+//        List<CouponScopeVO> couponScopeVOS = BeanUtils.copyList(categoryBasicDTOS, CouponScopeVO.class);
+//        couponDetailVO.setScopes(couponScopeVOS);
         return couponDetailVO;
     }
 }

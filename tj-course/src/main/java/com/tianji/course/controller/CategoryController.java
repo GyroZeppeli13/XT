@@ -97,10 +97,9 @@ public class CategoryController {
         return categoryService.allOfOneLevel();
     }
 
-    @GetMapping("getByIds")
+    @PostMapping("getByIds")
     @ApiOperation("获取在ids中的所有课程分类")
-    public List<CategoryBasicDTO> getByIds(Set<Long> ids) {
-        log.info("hehe");
+    public List<CategoryBasicDTO> getByIds(@RequestBody Set<Long> ids) {
         return categoryService.getByIds(ids);
     }
 
