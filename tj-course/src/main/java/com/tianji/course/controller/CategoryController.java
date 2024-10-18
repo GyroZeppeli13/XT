@@ -100,6 +100,7 @@ public class CategoryController {
     @GetMapping("getByIds")
     @ApiOperation("获取在ids中的所有课程分类")
     public List<CategoryBasicDTO> getByIds(Set<Long> ids) {
+        log.info("hehe");
         return categoryService.getByIds(ids);
     }
 

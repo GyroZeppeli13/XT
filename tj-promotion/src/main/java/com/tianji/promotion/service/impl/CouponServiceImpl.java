@@ -1,5 +1,6 @@
 package com.tianji.promotion.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.tianji.api.client.course.CategoryClient;
@@ -180,8 +181,9 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         CouponDetailVO couponDetailVO = BeanUtils.copyBean(coupon, CouponDetailVO.class);
         // 查限定的分类
         // 查分类id
-        List<CouponScope> list = scopeService.list(Wrappers.<CouponScope>lambdaQuery()
-                .eq(CouponScope::getCouponId, id));
+        QueryWrapper<CouponScope> wrapper = new QueryWrapper<>();
+        wrapper.eq("coupon_id", id);
+        List<CouponScope> list = scopeService.list(wrapper);
         // 远程查询分类信息
         Set<Long> collect = list.stream().map(CouponScope::getBizId).collect(Collectors.toSet());
         List<CategoryBasicDTO> categoryBasicDTOS = categoryClient.getByIds(collect);
