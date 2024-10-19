@@ -44,7 +44,7 @@ public class Coupon implements Serializable {
     @ApiModelProperty(value = "优惠券类型，1：普通券。目前就一种，保留字段")
     private Integer type;
 
-    @ApiModelProperty(value = "折扣类型，1：满减，2：每满减，3：折扣，4：无门槛")
+    @ApiModelProperty(value = "折扣类型，1：每满减，2：折扣，3：无门槛，4：普通满减")
     private DiscountType discountType;
 
     @ApiModelProperty(value = "是否限定作用范围，false：不限定，true：限定。默认false")

@@ -8,6 +8,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.tianji.promotion.domain.query.CouponQuery;
 import com.tianji.promotion.domain.vo.CouponDetailVO;
 import com.tianji.promotion.domain.vo.CouponPageVO;
+import com.tianji.promotion.enums.CouponStatus;
+
+import java.util.List;
 
 /**
  * <p>
@@ -30,4 +33,8 @@ public interface ICouponService extends IService<Coupon> {
     void updateCoupon(CouponFormDTO dto);
 
     CouponDetailVO getCouponById(Long id);
+
+    List<Coupon> queryCouponWithStatusByPage(CouponStatus couponStatus, int pageNo, int pageSize);
+
+    void stopIssue(Long id);
 }

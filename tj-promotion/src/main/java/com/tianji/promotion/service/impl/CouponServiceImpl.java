@@ -20,10 +20,12 @@ import com.tianji.promotion.domain.vo.CouponDetailVO;
 import com.tianji.promotion.domain.vo.CouponPageVO;
 import com.tianji.promotion.domain.vo.CouponScopeVO;
 import com.tianji.promotion.enums.CouponStatus;
+import com.tianji.promotion.enums.ObtainType;
 import com.tianji.promotion.mapper.CouponMapper;
 import com.tianji.promotion.service.ICouponScopeService;
 import com.tianji.promotion.service.ICouponService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.tianji.promotion.service.IExchangeCodeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,6 +52,8 @@ import static com.tianji.promotion.enums.CouponStatus.*;
 public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> implements ICouponService {
 
     private final ICouponScopeService scopeService;
+
+    private final IExchangeCodeService codeService;
 
     private final CategoryClient categoryClient;
 
@@ -130,7 +134,11 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         // 4.3.写入数据库
         updateById(c);
 
-        // TODO 兑换码生成
+        // 5.判断是否需要生成兑换码，优惠券类型必须是兑换码，优惠券状态必须是待发放
+        if(coupon.getObtainWay() == ObtainType.ISSUE && coupon.getStatus() == CouponStatus.DRAFT){
+            coupon.setIssueEndTime(c.getIssueEndTime());
+            codeService.asyncGenerateCode(coupon);
+        }
     }
 
     @Override
@@ -186,11 +194,34 @@ public class CouponServiceImpl extends ServiceImpl<CouponMapper, Coupon> impleme
         List<CouponScope> list = scopeService.list(wrapper);
         // 远程查询分类信息
         Set<Long> collect = list.stream().map(CouponScope::getBizId).collect(Collectors.toSet());
-//        List<CategoryBasicDTO> categoryBasicDTOS = categoryClient.getByIds(collect);
-        List<CategoryBasicDTO> allOfOneLevel = categoryClient.getAllOfOneLevel();
+        List<CategoryBasicDTO> categoryBasicDTOS = categoryClient.getByIds(collect);
         // 封装分类信息
-//        List<CouponScopeVO> couponScopeVOS = BeanUtils.copyList(categoryBasicDTOS, CouponScopeVO.class);
-//        couponDetailVO.setScopes(couponScopeVOS);
+        List<CouponScopeVO> couponScopeVOS = BeanUtils.copyList(categoryBasicDTOS, CouponScopeVO.class);
+        couponDetailVO.setScopes(couponScopeVOS);
         return couponDetailVO;
+    }
+
+    @Override
+    public List<Coupon> queryCouponWithStatusByPage(CouponStatus couponStatus, int pageNo, int pageSize) {
+        LocalDateTime now = LocalDateTime.now();
+        Page<Coupon> page = new Page<>(pageNo, pageSize);
+        page = lambdaQuery()
+                .eq(Coupon::getStatus, couponStatus)
+                .le(couponStatus == UN_ISSUE, Coupon::getIssueBeginTime, now)
+                .le(couponStatus == ISSUING, Coupon::getIssueEndTime, now)
+                .page(page);
+        return page.getRecords();
+    }
+
+    @Override
+    public void stopIssue(Long id) {
+        // 校验
+        Coupon coupon = getById(id);
+        if(coupon == null || coupon.getStatus() != ISSUING) {
+            throw new BizIllegalException("优惠卷不存在或者优惠劵状态不在发放中");
+        }
+        // 暂停发放
+        coupon.setStatus(PAUSE);
+        updateById(coupon);
     }
 }

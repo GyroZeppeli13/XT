@@ -651,7 +651,8 @@ public class CategoryServiceImpl extends ServiceImpl<CategoryMapper, Category> i
         if(ids == null || CollUtils.isEmpty(ids)) {
             return CollUtils.emptyList();
         }
-        List<CategoryBasicDTO> list = getByIds(ids);
+        List<Category> categories = listByIds(ids);
+        List<CategoryBasicDTO> list = BeanUtils.copyList(categories, CategoryBasicDTO.class);
         return list;
     }
 }
