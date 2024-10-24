@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import static com.tianji.promotion.constants.PromotionConstants.COUPON_CODE_SERIAL_KEY;
-import static com.tianji.promotion.constants.PromotionConstants.COUPON_RANGE_KEY;
+import static com.tianji.promotion.constants.PromotionConstants.*;
 
 /**
  * <p>
@@ -91,5 +91,24 @@ public class ExchangeCodeServiceImpl extends ServiceImpl<ExchangeCodeMapper, Exc
         List<ExchangeCodeVO> list = BeanUtils.copyList(records, ExchangeCodeVO.class);
         // 3.返回
         return PageDTO.of(page, list);
+    }
+
+    @Override
+    public boolean updateExchangeMark(long serialNum, boolean mark) {
+        Boolean boo = redisTemplate.opsForValue().setBit(COUPON_CODE_MAP_KEY, serialNum, mark);
+        return boo != null && boo;
+    }
+
+    @Override
+    public Long exchangeTargetId(long serialNum) {
+        // 1.查询score值比当前序列号大的第一个优惠券
+        Set<String> results = redisTemplate.opsForZSet().rangeByScore(
+                COUPON_RANGE_KEY, serialNum, serialNum + 5000, 0L, 1L);
+        if (CollUtils.isEmpty(results)) {
+            return null;
+        }
+        // 2.数据转换
+        String next = results.iterator().next();
+        return Long.parseLong(next);
     }
 }
