@@ -12,7 +12,7 @@ import java.util.List;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(description = "考试详情数据")
+@ApiModel(description = "题目详情数据")
 public class QuestionDetailVO {
 
     @ApiModelProperty("题目id")

@@ -2,10 +2,12 @@ package com.tianji.learning.service.impl;
 
 import com.tianji.api.client.course.CourseClient;
 import com.tianji.api.dto.course.CourseFullInfoDTO;
+import com.tianji.api.dto.course.SectionInfoDTO;
 import com.tianji.api.dto.leanring.LearningLessonDTO;
 import com.tianji.api.dto.leanring.LearningRecordDTO;
 import com.tianji.common.autoconfigure.mq.RabbitMqHelper;
 import com.tianji.common.constants.MqConstants;
+import com.tianji.common.domain.dto.PageDTO;
 import com.tianji.common.exceptions.BizIllegalException;
 import com.tianji.common.exceptions.DbException;
 import com.tianji.common.utils.BeanUtils;
@@ -185,6 +187,13 @@ public class LearningRecordServiceImpl extends ServiceImpl<LearningRecordMapper,
     }
 
     private boolean handleExamRecord(Long userId, LearningRecordFormDTO formDTO) {
+        if(formDTO.getLessonId() == null) {
+            SectionInfoDTO sectionInfoDTO = courseClient.sectionInfo(formDTO.getSectionId());
+            Long courseId = sectionInfoDTO.getCourseId();
+            // 查询课表
+            LearningLesson lesson = lessonService.queryByUserAndCourseId(userId, courseId);
+            formDTO.setLessonId(lesson.getId());
+        }
         // 1.转换DTO为PO
         LearningRecord record = BeanUtils.copyBean(formDTO, LearningRecord.class);
         // 2.填充数据
